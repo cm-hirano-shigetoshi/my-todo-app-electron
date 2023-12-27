@@ -60,14 +60,23 @@ function addOneTask(todo) {
     todoList.appendChild(li);
 }
 
-function updateUI() {
-    const todoList = document.getElementById('todo-list');
-    todoList.innerHTML = ''; // UIをクリア
+function isExists(id) {
+    return false
+}
 
-    // グローバル変数のデータに基づいてUIを再構築
-    todos.forEach(todo => {
+function getTargetTodo(id) {
+    return todos.filter(obj => {
+        return obj.id === id;
+    })[0];
+}
+
+function updateUI(id) {
+    if (isExists(id)) {
+        //
+    } else {
+        let todo = getTargetTodo(id);
         addOneTask(todo);
-    });
+    }
 }
 
 function addTask() {
@@ -75,13 +84,14 @@ function addTask() {
 
     // ToDoアイテムをグローバル変数に追加
     const newTodo = {
+        id: Date.now().toString(),
         text: todoInput.value,
         startTime: null,
         elapsedTime: null,
     };
     todos.push(newTodo);
     saveToDoList(); // データを保存
-    updateUI(); // UIをアップデート
+    updateUI(newTodo.id); // UIをアップデート
     todoInput.value = ''; // 入力フィールドのクリア
 }
 
