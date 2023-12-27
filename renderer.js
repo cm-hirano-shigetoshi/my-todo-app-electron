@@ -1,34 +1,25 @@
 const {ipcRenderer} = require('electron');
 
+let todos = [];
+
 function saveToDoList() {
-    const todos = Array.from(
-        document.querySelectorAll('#todo-list li')
-    ).map(
-        li => li.querySelector('label').textContent
-    );
-    ipcRenderer.send('save-todos', todos);
+    ipcRenderer.invoke('save-todos', todos);
 }
 
 function loadToDoList() {
-    const todos = JSON.parse(ipcRenderer.sendSync('load-todos'));
-    todos.forEach(todoText => {
-        addTask(todoText);
-    });
+    // データを同期して、グローバル変数をアップデート
+    todos = JSON.parse(ipcRenderer.sendSync('load-todos'));
+    updateUI();
 }
 
-function addTask(text) {
-    const todoInput = document.getElementById('todo-input');
+function addOneTask(todo) {
     const todoList = document.getElementById('todo-list');
-
-    // テキストが空の場合は追加しない
-    if (!text && !todoInput.value.trim()) return;
-    const todoText = text || todoInput.value;
 
     // ToDoのリストアイテムを作成
     const li = document.createElement('li');
 
     const title = document.createElement('label');
-    title.textContent = todoText;
+    title.textContent = todo.text;
     const startButton = document.createElement('button');
     startButton.textContent = '開始';
     const stopButton = document.createElement('button');
@@ -54,12 +45,10 @@ function addTask(text) {
         timeDisplay.textContent = elapsedTime;
         stopButton.disabled = true;
         startButton.disabled = false;
-        saveToDoList();
     });
 
     completeBtn.addEventListener('click', () => {
         todoList.removeChild(li);
-        saveToDoList();
     });
 
     // リストアイテムへのボタンの追加
@@ -69,14 +58,34 @@ function addTask(text) {
     li.appendChild(timeDisplay);
     li.appendChild(completeBtn);
     todoList.appendChild(li);
+}
 
-    // 入力フィールドのクリア
-    todoInput.value = '';
+function updateUI() {
+    const todoList = document.getElementById('todo-list');
+    todoList.innerHTML = ''; // UIをクリア
 
-    saveToDoList();
+    // グローバル変数のデータに基づいてUIを再構築
+    todos.forEach(todo => {
+        addOneTask(todo);
+    });
+}
+
+function addTask() {
+    const todoInput = document.getElementById('todo-input');
+
+    // ToDoアイテムをグローバル変数に追加
+    const newTodo = {
+        text: todoInput.value,
+        startTime: null,
+        elapsedTime: null,
+    };
+    todos.push(newTodo);
+    saveToDoList(); // データを保存
+    updateUI(); // UIをアップデート
+    todoInput.value = ''; // 入力フィールドのクリア
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('add-task-btn').addEventListener('click', () => addTask());
-    loadToDoList();
+    //loadToDoList();
 });

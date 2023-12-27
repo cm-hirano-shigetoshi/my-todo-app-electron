@@ -39,6 +39,11 @@ ipcMain.on('save-todos', (event, todos) => {
     fs.writeFileSync(DATA_PATH, JSON.stringify(todos, null, 2), 'utf-8');
 });
 
+// ToDoリストの非同期保存処理
+ipcMain.handle('save-todos', async(event, todos) => {
+    fs.writeFileSync(DATA_PATH, JSON.stringify(todos, null, 2), 'utf-8');
+});
+
 // ToDoリストの読み込み処理
 ipcMain.on('load-todos', (event) => {
     if (!fs.existsSync(DATA_PATH)) {
