@@ -7,10 +7,10 @@ function _saveToDoList(todos) {
 }
 
 function loadToDoList() {
-    // データを同期して、グローバル変数をアップデート
-    //todos = JSON.parse(ipcRenderer.sendSync('load-todos'));
-    //updateUI();
-    return []
+    todos = JSON.parse(ipcRenderer.sendSync('load-todos'));
+    for (let todo of todos) {
+        _updateUI(todo);
+    }
 }
 
 
@@ -77,8 +77,7 @@ function _updateUI(todo) {
 function addTask(todoInput) {
     // ToDoアイテムをグローバル変数に追加
     const newTodo = {
-        //id: Date.now().toString(),
-        id: todoInput.value,
+        id: Date.now().toString(),
         text: todoInput.value,
         startTime: null,
         endTime: null,
@@ -91,5 +90,6 @@ function addTask(todoInput) {
 
 document.addEventListener('DOMContentLoaded', () => {
     const todoInput = document.getElementById('todo-input');
+    loadToDoList();
     document.getElementById('add-task-btn').addEventListener('click', () => addTask(todoInput));
 });
