@@ -28,7 +28,11 @@ function addOneTask(todo) {
     stopButton.textContent = '停止';
     stopButton.disabled = true;
     const timeDisplay = document.createElement('label');
-    timeDisplay.textContent = '--';
+    if (todo.endTime && todo.startTime) {
+        timeDisplay.textContent = (todo.endTime - todo.startTime) / 1000;
+    } else {
+        timeDisplay.textContent = '--';
+    }
     const completeBtn = document.createElement('button');
     completeBtn.textContent = '完了';
 
