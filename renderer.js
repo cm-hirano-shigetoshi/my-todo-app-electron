@@ -52,18 +52,23 @@ function addOneTask(todo) {
     }
     const startButton = document.createElement('button');
     startButton.textContent = '開始';
-    const stopButton = document.createElement('button');
-    stopButton.textContent = '停止';
-    if (_isRunning(todo)) {
-        startButton.disabled = true;
-    } else {
-        stopButton.disabled = true;
-    }
     const timeDisplay = document.createElement('label');
     if (todo.endTime && todo.startTime) {
         timeDisplay.textContent = (todo.endTime - todo.startTime) / 1000;
     } else {
         timeDisplay.textContent = '--';
+    }
+    const stopButton = document.createElement('button');
+    stopButton.textContent = '中断';
+    if (todo.done) {
+        startButton.disabled = true;
+        stopButton.disabled = true;
+    } else {
+        if (_isRunning(todo)) {
+            startButton.disabled = true;
+        } else {
+            stopButton.disabled = true;
+        }
     }
     const completeBtn = document.createElement('button');
     if (todo.done) {
@@ -89,21 +94,28 @@ function addOneTask(todo) {
 
     completeBtn.addEventListener('click', () => {
         todo.done = !todo.done;
-        _saveToDoList(todos)
         if (todo.done) {
+            todo.endTime = Date.now();
+            _saveToDoList(todos)
             title.style.color = "lightgray";
             completeBtn.textContent = "取消";
+            timeDisplay.textContent = (todo.endTime - todo.startTime) / 1000;
+            startButton.disabled = true;
+            stopButton.disabled = true;
         } else {
+            _saveToDoList(todos)
             title.style.color = "black";
             completeBtn.textContent = "完了";
+            startButton.disabled = false;
+            stopButton.disabled = true;
         }
     });
 
     // リストアイテムへのボタンの追加
     li.appendChild(title);
     li.appendChild(startButton);
-    li.appendChild(stopButton);
     li.appendChild(timeDisplay);
+    li.appendChild(stopButton);
     li.appendChild(completeBtn);
     todoList.appendChild(li);
 }
