@@ -40,10 +40,9 @@ function addOneTask(todo) {
     });
 
     stopButton.addEventListener('click', () => {
-        const elapsedTime = (Date.now() - todo.startTime) / 1000;
-        todo.elapsedTime = elapsedTime;
+        todo.endTime = Date.now();
         _saveToDoList(todos)
-        timeDisplay.textContent = elapsedTime;
+        timeDisplay.textContent = (todo.endTime - todo.startTime) / 1000;
         stopButton.disabled = true;
         startButton.disabled = false;
     });
@@ -82,7 +81,7 @@ function addTask(todoInput) {
         id: todoInput.value,
         text: todoInput.value,
         startTime: null,
-        elapsedTime: null,
+        endTime: null,
     };
     todos.push(newTodo);
     _saveToDoList(todos); // データを保存
