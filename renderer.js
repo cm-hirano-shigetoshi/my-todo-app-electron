@@ -21,20 +21,28 @@ function _updateUI(todo) {
 }
 
 function _isRunning(todo) {
-    if (todo.startTime) {
-        if (!todo.endTime) {
-            return true;
-        } else if (todo.startTime > todo.endTime) {
-            return true;
-        }
+    console.log(todo.times[todo.times.length - 1]);
+    console.log(todo.times[todo.times.length - 1].start);
+    if (todo.times[todo.times.length - 1].start && !todo.times[todo.times.length - 1].end) {
+        return true;
     }
     return false;
+}
+
+function _getElapsedTime(todo) {
+    elapsedTime = 0;
+    for (let time of todo.times) {
+        if (time.end && time.start) {
+            elapsedTime += time.end - time.start;
+        }
+    }
+    return elapsedTime / 1000;
 }
 
 function loadToDoList() {
     todos = JSON.parse(ipcRenderer.sendSync('load-todos'));
     for (let todo of todos) {
-        _updateUI(todo);
+        if (!todo.done) _updateUI(todo);
     }
 }
 
@@ -53,11 +61,7 @@ function addOneTask(todo) {
     const startButton = document.createElement('button');
     startButton.textContent = '開始';
     const timeDisplay = document.createElement('label');
-    if (todo.endTime && todo.startTime) {
-        timeDisplay.textContent = (todo.endTime - todo.startTime) / 1000;
-    } else {
-        timeDisplay.textContent = '--';
-    }
+    timeDisplay.textContent = _getElapsedTime(todo);
     const stopButton = document.createElement('button');
     stopButton.textContent = '中断';
     if (todo.done) {
@@ -78,16 +82,17 @@ function addOneTask(todo) {
     }
 
     startButton.addEventListener('click', () => {
-        todo.startTime = Date.now().toString();
+        todo.times.push({start: null, end: null});
+        todo.times[todo.times.length - 1].start = Date.now();
         _saveToDoList(todos)
         startButton.disabled = true;
         stopButton.disabled = false;
     });
 
     stopButton.addEventListener('click', () => {
-        todo.endTime = Date.now();
+        todo.times[todo.times.length - 1].end = Date.now();
         _saveToDoList(todos)
-        timeDisplay.textContent = (todo.endTime - todo.startTime) / 1000;
+        timeDisplay.textContent = _getElapsedTime(todo);
         stopButton.disabled = true;
         startButton.disabled = false;
     });
@@ -95,11 +100,11 @@ function addOneTask(todo) {
     completeBtn.addEventListener('click', () => {
         todo.done = !todo.done;
         if (todo.done) {
-            todo.endTime = Date.now();
+            todo.times[todo.times.length - 1].end = Date.now();
             _saveToDoList(todos)
             title.style.color = "lightgray";
             completeBtn.textContent = "取消";
-            timeDisplay.textContent = (todo.endTime - todo.startTime) / 1000;
+            timeDisplay.textContent = _getElapsedTime(todo);
             startButton.disabled = true;
             stopButton.disabled = true;
         } else {
@@ -125,8 +130,7 @@ function addTask(todoInput) {
     const newTodo = {
         id: Date.now().toString(),
         text: todoInput.value,
-        startTime: null,
-        endTime: null,
+        times: [{start: null, end: null}],
         done: false,
     };
     todos.push(newTodo);
