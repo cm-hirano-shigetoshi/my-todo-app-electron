@@ -47,6 +47,9 @@ function addOneTask(todo) {
 
     const title = document.createElement('label');
     title.textContent = todo.text;
+    if (todo.done) {
+        title.style.color = "lightgray";
+    }
     const startButton = document.createElement('button');
     startButton.textContent = '開始';
     const stopButton = document.createElement('button');
@@ -63,7 +66,11 @@ function addOneTask(todo) {
         timeDisplay.textContent = '--';
     }
     const completeBtn = document.createElement('button');
-    completeBtn.textContent = '完了';
+    if (todo.done) {
+        completeBtn.textContent = '取消';
+    } else {
+        completeBtn.textContent = '完了';
+    }
 
     startButton.addEventListener('click', () => {
         todo.startTime = Date.now().toString();
@@ -81,7 +88,15 @@ function addOneTask(todo) {
     });
 
     completeBtn.addEventListener('click', () => {
-        todoList.removeChild(li);
+        todo.done = !todo.done;
+        _saveToDoList(todos)
+        if (todo.done) {
+            title.style.color = "lightgray";
+            completeBtn.textContent = "取消";
+        } else {
+            title.style.color = "black";
+            completeBtn.textContent = "完了";
+        }
     });
 
     // リストアイテムへのボタンの追加
@@ -100,6 +115,7 @@ function addTask(todoInput) {
         text: todoInput.value,
         startTime: null,
         endTime: null,
+        done: false,
     };
     todos.push(newTodo);
     _saveToDoList(todos); // データを保存
