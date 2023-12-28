@@ -6,6 +6,31 @@ function _saveToDoList(todos) {
     ipcRenderer.invoke('save-todos', todos);
 }
 
+function _isExists() {
+    return false
+    //return todoList.querySelector('#' + id) ? true : false;
+}
+
+function _updateUI(todo) {
+    if (_isExists()) {
+        // 未実装
+    } else {
+        // 新しいtodoを追加
+        addOneTask(todo);
+    }
+}
+
+function _isRunning(todo) {
+    if (todo.startTime) {
+        if (!todo.endTime) {
+            return true;
+        } else if (todo.startTime > todo.endTime) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function loadToDoList() {
     todos = JSON.parse(ipcRenderer.sendSync('load-todos'));
     for (let todo of todos) {
@@ -26,7 +51,7 @@ function addOneTask(todo) {
     startButton.textContent = '開始';
     const stopButton = document.createElement('button');
     stopButton.textContent = '停止';
-    if (!todo.endTime || todo.startTime > todo.endTime) {
+    if (_isRunning(todo)) {
         startButton.disabled = true;
     } else {
         stopButton.disabled = true;
@@ -66,20 +91,6 @@ function addOneTask(todo) {
     li.appendChild(timeDisplay);
     li.appendChild(completeBtn);
     todoList.appendChild(li);
-}
-
-function _isExists() {
-    return false
-    //return todoList.querySelector('#' + id) ? true : false;
-}
-
-function _updateUI(todo) {
-    if (_isExists()) {
-        // 未実装
-    } else {
-        // 新しいtodoを追加
-        addOneTask(todo);
-    }
 }
 
 function addTask(todoInput) {
