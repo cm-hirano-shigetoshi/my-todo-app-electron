@@ -6,23 +6,8 @@ function _saveToDoList(todos) {
     ipcRenderer.invoke('save-todos', todos);
 }
 
-function _isExists() {
-    return false
-    //return todoList.querySelector('#' + id) ? true : false;
-}
-
-function _updateUI(todo) {
-    if (_isExists()) {
-        // 未実装
-    } else {
-        // 新しいtodoを追加
-        addOneTask(todo);
-    }
-}
-
 function _isRunning(todo) {
-    console.log(todo.times[todo.times.length - 1]);
-    console.log(todo.times[todo.times.length - 1].start);
+    if (todo.times.length === 0) return false;
     if (todo.times[todo.times.length - 1].start && !todo.times[todo.times.length - 1].end) {
         return true;
     }
@@ -45,8 +30,13 @@ function _refreshAllTodos(todos) {
         todoList.removeChild(todoList.firstChild);
     }
     for (let todo of todos) {
-        addOneTask(todo);
+        drawTask(todo);
     }
+}
+
+function refresh() {
+    _saveToDoList(todos);
+    _refreshAllTodos(todos);
 }
 
 function loadToDoList() {
@@ -55,7 +45,7 @@ function loadToDoList() {
 }
 
 
-function addOneTask(todo) {
+function drawTask(todo) {
     const todoList = document.getElementById('todo-list');
 
     // ToDoのリストアイテムを作成
@@ -89,28 +79,6 @@ function addOneTask(todo) {
         completeBtn.textContent = '完了';
     }
 
-    startButton.addEventListener('click', () => {
-        todo.times.push({start: null, end: null});
-        todo.times[todo.times.length - 1].start = Date.now();
-        _saveToDoList(todos);
-        _refreshAllTodos(todos);
-    });
-
-    stopButton.addEventListener('click', () => {
-        todo.times[todo.times.length - 1].end = Date.now();
-        _saveToDoList(todos);
-        _refreshAllTodos(todos);
-    });
-
-    completeBtn.addEventListener('click', () => {
-        todo.done = !todo.done;
-        if (todo.done) {
-            todo.times[todo.times.length - 1].end = Date.now();
-        }
-        _saveToDoList(todos);
-        _refreshAllTodos(todos);
-    });
-
     // リストアイテムへのボタンの追加
     li.appendChild(title);
     li.appendChild(startButton);
@@ -118,20 +86,36 @@ function addOneTask(todo) {
     li.appendChild(stopButton);
     li.appendChild(completeBtn);
     todoList.appendChild(li);
+
+    startButton.addEventListener('click', () => {
+        todo.times.push({start: Date.now(), end: null});
+        refresh();
+    });
+
+    stopButton.addEventListener('click', () => {
+        todo.times[todo.times.length - 1].end = Date.now();
+        refresh();
+    });
+
+    completeBtn.addEventListener('click', () => {
+        todo.done = !todo.done;
+        if (todo.done) {
+            todo.times[todo.times.length - 1].end = Date.now();
+        }
+        refresh();
+    });
 }
 
 function addTask(todoInput) {
-    // ToDoアイテムをグローバル変数に追加
     const newTodo = {
         id: Date.now().toString(),
         text: todoInput.value,
-        times: [{start: null, end: null}],
+        times: [],
         done: false,
     };
     todos.push(newTodo);
-    _saveToDoList(todos); // データを保存
-    _updateUI(newTodo); // UIをアップデート
     todoInput.value = ''; // 入力フィールドのクリア
+    refresh();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
