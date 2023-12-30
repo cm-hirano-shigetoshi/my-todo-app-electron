@@ -39,11 +39,19 @@ function _getElapsedTime(todo) {
     return elapsedTime / 1000;
 }
 
+function _refreshAllTodos(todos) {
+    const todoList = document.getElementById('todo-list');
+    while (todoList.firstChild) {
+        todoList.removeChild(todoList.firstChild);
+    }
+    for (let todo of todos) {
+        addOneTask(todo);
+    }
+}
+
 function loadToDoList() {
     todos = JSON.parse(ipcRenderer.sendSync('load-todos'));
-    for (let todo of todos) {
-        if (!todo.done) _updateUI(todo);
-    }
+    _refreshAllTodos(todos);
 }
 
 
@@ -84,36 +92,23 @@ function addOneTask(todo) {
     startButton.addEventListener('click', () => {
         todo.times.push({start: null, end: null});
         todo.times[todo.times.length - 1].start = Date.now();
-        _saveToDoList(todos)
-        startButton.disabled = true;
-        stopButton.disabled = false;
+        _saveToDoList(todos);
+        _refreshAllTodos(todos);
     });
 
     stopButton.addEventListener('click', () => {
         todo.times[todo.times.length - 1].end = Date.now();
-        _saveToDoList(todos)
-        timeDisplay.textContent = _getElapsedTime(todo);
-        stopButton.disabled = true;
-        startButton.disabled = false;
+        _saveToDoList(todos);
+        _refreshAllTodos(todos);
     });
 
     completeBtn.addEventListener('click', () => {
         todo.done = !todo.done;
         if (todo.done) {
             todo.times[todo.times.length - 1].end = Date.now();
-            _saveToDoList(todos)
-            title.style.color = "lightgray";
-            completeBtn.textContent = "取消";
-            timeDisplay.textContent = _getElapsedTime(todo);
-            startButton.disabled = true;
-            stopButton.disabled = true;
-        } else {
-            _saveToDoList(todos)
-            title.style.color = "black";
-            completeBtn.textContent = "完了";
-            startButton.disabled = false;
-            stopButton.disabled = true;
         }
+        _saveToDoList(todos);
+        _refreshAllTodos(todos);
     });
 
     // リストアイテムへのボタンの追加
