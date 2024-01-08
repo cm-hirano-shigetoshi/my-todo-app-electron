@@ -34,17 +34,18 @@ function _getElapsedTime(todo) {
 }
 
 function _getUlWithText(ul, text) {
-    if (ul.querySelector(`li[textContent="${text}"]`) ? true : false) {
-        const dateLi = ul.querySelector(`li[textContent="${text}"]`);
-        return dateLi.getElementsByClassName('ul');
+    let day;
+    if (document.querySelector(`li[date='${text}']`) ? true : false) {
+        day = ul.querySelector(`li[date='${text}']`);
     } else {
-        const day = document.createElement('li');
+        day = document.createElement('li');
         day.textContent = text;
-        ul.appendChild(day);
-        const taskList = document.createElement('ul');
-        day.appendChild(taskList)
-        return taskList;
+        day.setAttribute("date", text);
     }
+    ul.appendChild(day);
+    const taskList = document.createElement('ul');
+    day.appendChild(taskList)
+    return taskList;
 }
 
 function _refreshAllTodos(todos) {
