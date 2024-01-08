@@ -2,6 +2,15 @@ const {ipcRenderer} = require('electron');
 
 let todos = [];
 
+function _getDate(timestamp, timezone = 9) {
+    const date = new Date(timestamp);
+    const YYYY = date.getFullYear();
+    const MM = ("0" + (date.getMonth() + 1)).slice(-2);
+    const DD = ("0" + date.getDate()).slice(-2);
+
+    return YYYY + "-" + MM + "-" + DD;
+}
+
 function _saveToDoList(todos) {
     ipcRenderer.invoke('save-todos', todos);
 }
@@ -24,13 +33,27 @@ function _getElapsedTime(todo) {
     return elapsedTime / 1000;
 }
 
+function _getUlWithText(ul, text) {
+    if (ul.querySelector(`li[textContent="${text}"]`) ? true : false) {
+        const dateLi = ul.querySelector(`li[textContent="${text}"]`);
+        return dateLi.getElementsByClassName('ul');
+    } else {
+        const day = document.createElement('li');
+        day.textContent = text;
+        ul.appendChild(day);
+        const taskList = document.createElement('ul');
+        day.appendChild(taskList)
+        return taskList;
+    }
+}
+
 function _refreshAllTodos(todos) {
     const todoList = document.getElementById('todo-list');
     while (todoList.firstChild) {
         todoList.removeChild(todoList.firstChild);
     }
-    for (let todo of todos) {
-        drawTask(todo);
+    for (let todo of todos.sort((a, b) => b.id - a.id)) {
+        drawTask(todo, _getUlWithText(todoList, todo.tags.Date));
     }
 }
 
@@ -45,33 +68,29 @@ function loadToDoList() {
 }
 
 
-function drawTask(todo) {
-    const todoList = document.getElementById('todo-list');
-
+function drawTask(todo, day) {
     // ToDoのリストアイテムを作成
     const li = document.createElement('li');
 
     const title = document.createElement('label');
     title.textContent = todo.text;
     if (todo.done) {
-        title.style.color = "lightgray";
+        title.style.background = "lightgreen";
+    } else if (_isRunning(todo)) {
+        title.style.fontWeight = 'bold';
+        title.style.background = "lightblue";
     }
-    const startButton = document.createElement('button');
-    startButton.textContent = '開始';
+    const measureButton = document.createElement('button');
+    if (_isRunning(todo)) {
+        measureButton.textContent = '中断';
+    } else {
+        measureButton.textContent = '開始';
+    }
+    if (todo.done) {
+        measureButton.disabled = true;
+    }
     const timeDisplay = document.createElement('label');
     timeDisplay.textContent = _getElapsedTime(todo);
-    const stopButton = document.createElement('button');
-    stopButton.textContent = '中断';
-    if (todo.done) {
-        startButton.disabled = true;
-        stopButton.disabled = true;
-    } else {
-        if (_isRunning(todo)) {
-            startButton.disabled = true;
-        } else {
-            stopButton.disabled = true;
-        }
-    }
     const completeBtn = document.createElement('button');
     if (todo.done) {
         completeBtn.textContent = '取消';
@@ -81,20 +100,19 @@ function drawTask(todo) {
 
     // リストアイテムへのボタンの追加
     li.appendChild(title);
-    li.appendChild(startButton);
+    li.appendChild(measureButton);
     li.appendChild(timeDisplay);
-    li.appendChild(stopButton);
     li.appendChild(completeBtn);
-    todoList.appendChild(li);
+    day.appendChild(li);
 
-    startButton.addEventListener('click', () => {
-        todo.times.push({start: Date.now(), end: null});
-        refresh();
-    });
-
-    stopButton.addEventListener('click', () => {
-        todo.times[todo.times.length - 1].end = Date.now();
-        refresh();
+    measureButton.addEventListener('click', () => {
+        if (_isRunning(todo)) {
+            todo.times[todo.times.length - 1].end = Date.now();
+            refresh();
+        } else {
+            todo.times.push({start: Date.now(), end: null});
+            refresh();
+        }
     });
 
     completeBtn.addEventListener('click', () => {
@@ -107,11 +125,13 @@ function drawTask(todo) {
 }
 
 function addTask(todoInput) {
+    const now = Date.now();
     const newTodo = {
-        id: Date.now().toString(),
+        id: now.toString(),
         text: todoInput.value,
         times: [],
         done: false,
+        tags: {"Date": _getDate(now)},
     };
     todos.push(newTodo);
     todoInput.value = ''; // 入力フィールドのクリア
