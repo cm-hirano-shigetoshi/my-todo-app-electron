@@ -36,7 +36,7 @@ function _getElapsedTime(todo) {
             elapsedTime += _calcElapsedTime(time.start, time.end);
         }
     }
-    return parseInt(elapsedTime / 60 - 0.5);
+    return parseInt(elapsedTime / 60 + 0.5);
 }
 
 function _getUlWithText(ul, text) {
@@ -81,7 +81,9 @@ function drawTask(todo, day) {
 
     const title = document.createElement('label');
     title.textContent = todo.text;
-    if (todo.done) {
+    if (todo.id.startsWith("MTG_")) {
+        title.style.background = "pink";
+    } else if (todo.done) {
         title.style.background = "lightgreen";
     } else if (_isRunning(todo)) {
         title.style.fontWeight = 'bold';
