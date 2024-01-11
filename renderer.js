@@ -27,10 +27,10 @@ function _getElapsedTime(todo) {
     elapsedTime = 0;
     for (let time of todo.times) {
         if (time.end && time.start) {
-            elapsedTime += time.end - time.start;
+            elapsedTime += parseInt(((time.end - time.start) / 1000 / 60) + 0.5);
         }
     }
-    return elapsedTime / 1000;
+    return elapsedTime;
 }
 
 function _getUlWithText(ul, text) {
