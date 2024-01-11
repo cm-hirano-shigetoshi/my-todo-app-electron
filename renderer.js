@@ -2,13 +2,15 @@ const {ipcRenderer} = require('electron');
 
 let todos = [];
 
-function _getDate(timestamp, timezone = 9) {
-    const date = new Date(timestamp);
-    const YYYY = date.getFullYear();
-    const MM = ("0" + (date.getMonth() + 1)).slice(-2);
-    const DD = ("0" + date.getDate()).slice(-2);
-
-    return YYYY + "-" + MM + "-" + DD;
+function _timestamp(epoch) {
+    const date = new Date(epoch);
+    const yyyy = date.getFullYear();
+    const mm = (`0${date.getMonth() + 1}`).slice(-2);
+    const dd = (`0${date.getDate()}`).slice(-2);
+    const hh = (`0${date.getHours()}`).slice(-2);
+    const mi = (`0${date.getMinutes()}`).slice(-2);
+    const ss = (`0${date.getSeconds()}`).slice(-2);
+    return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
 }
 
 function _saveToDoList(todos) {
@@ -23,14 +25,20 @@ function _isRunning(todo) {
     return false;
 }
 
+function _calcElapsedTime(start, end) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    return (endDate - startDate) / 1000;
+}
+
 function _getElapsedTime(todo) {
     elapsedTime = 0;
     for (let time of todo.times) {
         if (time.end && time.start) {
-            elapsedTime += parseInt(((time.end - time.start) / 1000 / 60) + 0.5);
+            elapsedTime += _calcElapsedTime(time.start, time.end);
         }
     }
-    return elapsedTime;
+    return parseInt(elapsedTime / 60 - 0.5);
 }
 
 function _getUlWithText(ul, text) {
@@ -117,10 +125,10 @@ function drawTask(todo, day) {
 
     measureButton.addEventListener('click', () => {
         if (_isRunning(todo)) {
-            todo.times[todo.times.length - 1].end = Date.now();
+            todo.times[todo.times.length - 1].end = _timestamp(Date.now());
             refresh();
         } else {
-            todo.times.push({start: Date.now(), end: null});
+            todo.times.push({start: _timestamp(Date.now()), end: null});
             refresh();
         }
     });
@@ -130,7 +138,7 @@ function drawTask(todo, day) {
         if (todo.done) {
             if (!todo.times[todo.times.length - 1].end) {
                 // endがすでにある場合は単純に再度完了に戻すだけ
-                todo.times[todo.times.length - 1].end = Date.now();
+                todo.times[todo.times.length - 1].end = _timestamp(Date.now());
             }
         }
         refresh();
@@ -145,7 +153,7 @@ function addTask(todoInput) {
         estimate: "",
         times: [],
         done: false,
-        tags: {"Date": _getDate(now)},
+        tags: {"Date": _timestamp(now).substring(0, 10)},
     };
     todos.push(newTodo);
     todoInput.value = ''; // 入力フィールドのクリア
