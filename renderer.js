@@ -81,6 +81,9 @@ function drawTask(todo, day) {
         title.style.fontWeight = 'bold';
         title.style.background = "lightblue";
     }
+    const estimateTime = document.createElement('input');
+    estimateTime.id = "estimate-time";
+    estimateTime.value = todo.estimate;
     const measureButton = document.createElement('button');
     if (_isRunning(todo)) {
         measureButton.textContent = '中断';
@@ -101,10 +104,16 @@ function drawTask(todo, day) {
 
     // リストアイテムへのボタンの追加
     li.appendChild(title);
+    li.appendChild(estimateTime);
     li.appendChild(measureButton);
     li.appendChild(timeDisplay);
     li.appendChild(completeBtn);
     day.appendChild(li);
+
+    estimateTime.addEventListener('input', function () {
+        todo.estimate = estimateTime.value;
+        _saveToDoList(todos);
+    });
 
     measureButton.addEventListener('click', () => {
         if (_isRunning(todo)) {
@@ -133,6 +142,7 @@ function addTask(todoInput) {
     const newTodo = {
         id: now.toString(),
         text: todoInput.value,
+        estimate: "",
         times: [],
         done: false,
         tags: {"Date": _getDate(now)},
