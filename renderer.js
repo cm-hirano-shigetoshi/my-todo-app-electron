@@ -2,16 +2,14 @@ const {ipcRenderer} = require('electron');
 
 let todos = [];
 
-function _timestamp(epoch) {
-    const date = new Date(epoch);
-    const yyyy = date.getFullYear();
-    const mm = (`0${date.getMonth() + 1}`).slice(-2);
-    const dd = (`0${date.getDate()}`).slice(-2);
-    const hh = (`0${date.getHours()}`).slice(-2);
-    const mi = (`0${date.getMinutes()}`).slice(-2);
-    const ss = (`0${date.getSeconds()}`).slice(-2);
-    return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+function _timestamp(epoch, timezoneOffset = 9) {
+    date = new Date(epoch);
+    const d = new Date(date.getTime() + timezoneOffset * 60 * 60 * 1000);
+    const pad = (num) => (num < 10 ? '0' + num : '' + num);
+    return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} `
+        + `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
 }
+
 
 function _saveToDoList(todos) {
     ipcRenderer.invoke('save-todos', todos);
