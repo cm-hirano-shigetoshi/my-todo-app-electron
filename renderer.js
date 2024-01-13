@@ -313,6 +313,7 @@ function addTask(todoInput) {
 document.addEventListener('DOMContentLoaded', () => {
     const todoInput = document.getElementById('todo-input');
     loadToDoList();
+    document.getElementById('reload').addEventListener('click', () => loadToDoList());
     document.getElementById('start-today').addEventListener('click', () => startToday());
     document.getElementById('add-task-btn').addEventListener('click', () => addTask(todoInput.value));
 });
