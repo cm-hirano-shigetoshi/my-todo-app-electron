@@ -93,8 +93,9 @@ function drawTask(todo, day) {
     // ToDoのリストアイテムを作成
     const li = document.createElement('li');
     if (todo.id.startsWith("MTG_")) {
-        const title = document.createElement('label');
-        title.textContent = todo.text;
+        const title = document.createElement('input');
+        title.id = "title";
+        title.value = todo.text;
         title.style.background = "pink";
         const estimateTime = document.createElement('input');
         estimateTime.id = "estimate-time";
@@ -114,6 +115,11 @@ function drawTask(todo, day) {
         li.appendChild(increaseButton);
         day.appendChild(li);
 
+        title.addEventListener('input', function () {
+            todo.text = title.value;
+            _saveToDoList(todos);
+        });
+
         estimateTime.addEventListener('input', function () {
             todo.estimate = estimateTime.value;
             _saveToDoList(todos);
@@ -129,8 +135,9 @@ function drawTask(todo, day) {
             refresh();
         });
     } else {
-        const title = document.createElement('label');
-        title.textContent = todo.text;
+        const title = document.createElement('input');
+        title.id = "title";
+        title.value = todo.text;
         if (todo.id.startsWith("MTG_")) {
             title.style.background = "pink";
         } else if (todo.done) {
@@ -167,6 +174,11 @@ function drawTask(todo, day) {
         li.appendChild(timeDisplay);
         li.appendChild(completeBtn);
         day.appendChild(li);
+
+        title.addEventListener('input', function () {
+            todo.text = title.value;
+            _saveToDoList(todos);
+        });
 
         estimateTime.addEventListener('input', function () {
             todo.estimate = estimateTime.value;
