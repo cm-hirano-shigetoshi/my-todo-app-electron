@@ -284,22 +284,27 @@ function _copyUncompletedTasks(todos, today) {
     refresh();
 }
 
-function startToday() {
-    const today = _getToday();
+function startToday(today = "") {
+    if (today === "") {
+        today = _getToday();
+    }
     _closeTaskManage(todos, today);
-    _addTask(todos, taskManage, taskManageEstimate)
+    _addTask(todos, taskManage, today, taskManageEstimate)
     _copyUncompletedTasks(todos, today);
 }
 
-function _addTask(todos, text, estimate = "") {
+function _addTask(todos, text, date = null, estimate = "") {
     const now = Date.now();
+    if (date === null) {
+        date = _getToday(now);
+    }
     const newTodo = {
         id: now.toString(),
         text: text,
         estimate: estimate,
         times: [],
         done: false,
-        tags: {"Date": _getToday(now)},
+        tags: {"Date": date},
     };
     todos.push(newTodo);
     refresh();
@@ -311,9 +316,10 @@ function addTask(todoInput) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    const targetToday = document.getElementById('target-today');
     const todoInput = document.getElementById('todo-input');
     loadToDoList();
     document.getElementById('reload').addEventListener('click', () => loadToDoList());
-    document.getElementById('start-today').addEventListener('click', () => startToday());
+    document.getElementById('start-today').addEventListener('click', () => startToday(targetToday.value));
     document.getElementById('add-task-btn').addEventListener('click', () => addTask(todoInput.value));
 });
