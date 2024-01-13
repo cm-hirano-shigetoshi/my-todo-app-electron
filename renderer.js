@@ -113,8 +113,10 @@ function drawTask(todo, day) {
         estimateTime.value = todo.estimate;
         const decreaseButton = document.createElement('button');
         decreaseButton.textContent = "<-";
-        const timeDisplay = document.createElement('label');
-        timeDisplay.textContent = _getElapsedTime(todo);
+        const timeDisplay = document.createElement('input');
+        timeDisplay.disabled = true;
+        timeDisplay.id = "time-display";
+        timeDisplay.value = _getElapsedTime(todo);
         const increaseButton = document.createElement('button');
         increaseButton.textContent = "->";
         const deleteButton = document.createElement('button');
@@ -177,8 +179,10 @@ function drawTask(todo, day) {
         if (todo.done) {
             measureButton.disabled = true;
         }
-        const timeDisplay = document.createElement('label');
-        timeDisplay.textContent = _getElapsedTime(todo);
+        const timeDisplay = document.createElement('input');
+        timeDisplay.disabled = true;
+        timeDisplay.id = "time-display";
+        timeDisplay.value = _getElapsedTime(todo);
         const completeBtn = document.createElement('button');
         if (todo.done) {
             completeBtn.textContent = '取消';
