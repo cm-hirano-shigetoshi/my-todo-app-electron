@@ -71,7 +71,13 @@ function _refreshAllTodos(todos) {
         todoList.removeChild(todoList.firstChild);
     }
     const order = (a, b) => {
-        return _epochtime(b.tags.Date) - _epochtime(a.tags.Date)
+        if (a.tags.Date < b.tags.Date) {
+            return 1;
+        }
+        if (a.tags.Date > b.tags.Date) {
+            return -1;
+        }
+        return a.id > b.id ? -1 : 1;
     }
     for (let todo of todos.sort(order)) {
         drawTask(todo, _getUlWithText(todoList, todo.tags.Date));
@@ -103,7 +109,7 @@ function loadToDoList() {
 function drawTask(todo, day) {
     // ToDoのリストアイテムを作成
     const li = document.createElement('li');
-    if (todo.id.startsWith("MTG_")) {
+    if (todo.id.startsWith("#MTG_")) {
         const title = document.createElement('input');
         title.id = "title";
         title.value = todo.text;
@@ -159,7 +165,7 @@ function drawTask(todo, day) {
         const title = document.createElement('input');
         title.id = "title";
         title.value = todo.text;
-        if (todo.id.startsWith("MTG_")) {
+        if (todo.id.startsWith("#MTG_")) {
             title.style.background = "pink";
         } else if (todo.done) {
             title.style.background = "lightgreen";
