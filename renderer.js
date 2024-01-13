@@ -77,6 +77,7 @@ function _getUlWithText(ul, text) {
 }
 
 function _refreshAllTodos(todos) {
+    const today = _getToday();
     const todoList = document.getElementById('todo-list');
     while (todoList.firstChild) {
         todoList.removeChild(todoList.firstChild);
@@ -91,7 +92,8 @@ function _refreshAllTodos(todos) {
         return a.id > b.id ? -1 : 1;
     }
     for (let todo of todos.sort(order)) {
-        drawTask(todo, _getUlWithText(todoList, todo.tags.Date));
+        const li = drawTask(todo, today);
+        _getUlWithText(todoList, todo.tags.Date).appendChild(li);
     }
 }
 
@@ -117,7 +119,7 @@ function loadToDoList() {
 }
 
 
-function drawTask(todo, day) {
+function drawTask(todo, today) {
     // ToDoのリストアイテムを作成
     const li = document.createElement('li');
     if (todo.id.startsWith("#MTG_")) {
@@ -146,7 +148,6 @@ function drawTask(todo, day) {
         li.appendChild(timeDisplay);
         li.appendChild(increaseButton);
         li.appendChild(deleteButton);
-        day.appendChild(li);
 
         title.addEventListener('input', function () {
             todo.text = title.value;
@@ -176,10 +177,10 @@ function drawTask(todo, day) {
         const title = document.createElement('input');
         title.id = "title";
         title.value = todo.text;
-        if (todo.id.startsWith("#MTG_")) {
-            title.style.background = "pink";
-        } else if (todo.done) {
+        if (todo.done) {
             title.style.background = "lightgreen";
+        } else if (todo.tags.Date < today) {
+            title.style.background = "lightgray";
         } else if (_isRunning(todo)) {
             title.style.fontWeight = 'bold';
             title.style.background = "lightblue";
@@ -216,7 +217,6 @@ function drawTask(todo, day) {
         li.appendChild(timeDisplay);
         li.appendChild(completeBtn);
         li.appendChild(deleteButton);
-        day.appendChild(li);
 
         title.addEventListener('input', function () {
             todo.text = title.value;
@@ -254,6 +254,7 @@ function drawTask(todo, day) {
             refresh();
         });
     }
+    return li
 }
 
 function _closeTaskManage(todos, today) {
@@ -268,10 +269,26 @@ function _closeTaskManage(todos, today) {
     refresh();
 }
 
+function _copyUncompletedTasks(todos, today) {
+    for (let todo of todos) {
+        if (todo.tags.Date >= today) {
+            continue;
+        }
+        if (!todo.done) {
+            let newTodo = JSON.parse(JSON.stringify(todo));;
+            todo.id += "_expired";
+            newTodo.tags.Date = today;
+            todos.push(newTodo)
+        }
+    }
+    refresh();
+}
+
 function startToday() {
     const today = _getToday();
     _closeTaskManage(todos, today);
     _addTask(todos, taskManage, taskManageEstimate)
+    _copyUncompletedTasks(todos, today);
 }
 
 function _addTask(todos, text, estimate = "") {
@@ -290,7 +307,7 @@ function _addTask(todos, text, estimate = "") {
 
 function addTask(todoInput) {
     _addTask(todos, todoInput.value);
-    todoInput.value = ''; // 入力フィールドのクリア
+    todoInput.value = '';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
