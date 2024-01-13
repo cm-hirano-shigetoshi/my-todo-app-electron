@@ -78,6 +78,17 @@ function _refreshAllTodos(todos) {
     }
 }
 
+function _removeTodo(todos, todo) {
+    const index = todos.findIndex(item => {
+        return item.id === todo.id;
+    });
+    todos.splice(index, 1);
+}
+
+function removeTodo(todo) {
+    _removeTodo(todos, todo);
+}
+
 function refresh() {
     _saveToDoList(todos);
     _refreshAllTodos(todos);
@@ -106,6 +117,8 @@ function drawTask(todo, day) {
         timeDisplay.textContent = _getElapsedTime(todo);
         const increaseButton = document.createElement('button');
         increaseButton.textContent = "->";
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = "削除";
 
         // リストアイテムへのボタンの追加
         li.appendChild(title);
@@ -113,6 +126,7 @@ function drawTask(todo, day) {
         li.appendChild(decreaseButton);
         li.appendChild(timeDisplay);
         li.appendChild(increaseButton);
+        li.appendChild(deleteButton);
         day.appendChild(li);
 
         title.addEventListener('input', function () {
@@ -132,6 +146,11 @@ function drawTask(todo, day) {
 
         increaseButton.addEventListener('click', () => {
             todo.times[todo.times.length - 1].end = _modifyTimestamp(todo.times[todo.times.length - 1].end, 5);
+            refresh();
+        });
+
+        deleteButton.addEventListener('click', () => {
+            removeTodo(todo);
             refresh();
         });
     } else {
@@ -166,6 +185,8 @@ function drawTask(todo, day) {
         } else {
             completeBtn.textContent = '完了';
         }
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = "削除";
 
         // リストアイテムへのボタンの追加
         li.appendChild(title);
@@ -173,6 +194,7 @@ function drawTask(todo, day) {
         li.appendChild(measureButton);
         li.appendChild(timeDisplay);
         li.appendChild(completeBtn);
+        li.appendChild(deleteButton);
         day.appendChild(li);
 
         title.addEventListener('input', function () {
@@ -203,6 +225,11 @@ function drawTask(todo, day) {
                     todo.times[todo.times.length - 1].end = _timestamp(Date.now());
                 }
             }
+            refresh();
+        });
+
+        deleteButton.addEventListener('click', () => {
+            removeTodo(todo);
             refresh();
         });
     }
