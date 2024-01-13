@@ -1,5 +1,8 @@
 const {ipcRenderer} = require('electron');
 
+const taskManage = "タスク確認";
+const taskManageEstimate = 30;
+
 let todos = [];
 
 function _timestamp(epoch, timezoneOffset = 9) {
@@ -8,6 +11,14 @@ function _timestamp(epoch, timezoneOffset = 9) {
     const pad = (num) => (num < 10 ? '0' + num : '' + num);
     return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} `
         + `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
+}
+
+function _getToday(now = null) {
+    if (now === null) {
+        return _timestamp(Date.now()).substring(0, 10);
+    } else {
+        return _timestamp(now).substring(0, 10);
+    }
 }
 
 function _epochtime(timestamp, timezoneOffset = 9) {
@@ -245,23 +256,46 @@ function drawTask(todo, day) {
     }
 }
 
-function addTask(todoInput) {
+function _closeTaskManage(todos, today) {
+    for (let todo of todos) {
+        if (todo.tags.Date >= today) {
+            continue;
+        }
+        if (todo.text === taskManage && !todo.done) {
+            todo.done = true;
+        }
+    }
+    refresh();
+}
+
+function startToday() {
+    const today = _getToday();
+    _closeTaskManage(todos, today);
+    _addTask(todos, taskManage, taskManageEstimate)
+}
+
+function _addTask(todos, text, estimate = "") {
     const now = Date.now();
     const newTodo = {
         id: now.toString(),
-        text: todoInput.value,
-        estimate: "",
+        text: text,
+        estimate: estimate,
         times: [],
         done: false,
-        tags: {"Date": _timestamp(now).substring(0, 10)},
+        tags: {"Date": _getToday(now)},
     };
     todos.push(newTodo);
-    todoInput.value = ''; // 入力フィールドのクリア
     refresh();
+}
+
+function addTask(todoInput) {
+    _addTask(todos, todoInput.value);
+    todoInput.value = ''; // 入力フィールドのクリア
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const todoInput = document.getElementById('todo-input');
     loadToDoList();
-    document.getElementById('add-task-btn').addEventListener('click', () => addTask(todoInput));
+    document.getElementById('start-today').addEventListener('click', () => startToday());
+    document.getElementById('add-task-btn').addEventListener('click', () => addTask(todoInput.value));
 });
