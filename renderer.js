@@ -33,6 +33,20 @@ function _modifyTimestamp(timestamp, offset) {
     return date.toISOString();
 }
 
+function _adjustEndTime(startTime, minutes) {
+    console.log(startTime);
+    const date = new Date(startTime);
+    console.log(date);
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset() + minutes);
+    console.log(date);
+    console.log(date.toISOString().slice(0, 19).replace("T", " "));
+    return date.toISOString().slice(0, 19).replace("T", " ");
+}
+
+function _syncMeetingTime(todo, minutes) {
+    todo.times[0].end = _adjustEndTime(todo.times[0].start, minutes);
+}
+
 function _saveToDoList(todos) {
     ipcRenderer.invoke('save-todos', todos);
 }
@@ -149,14 +163,15 @@ function drawTask(todo, today) {
         li.appendChild(increaseButton);
         li.appendChild(deleteButton);
 
-        title.addEventListener('input', function () {
+        title.addEventListener('blur', function () {
             todo.text = title.value;
             _saveToDoList(todos);
         });
 
-        estimateTime.addEventListener('input', function () {
+        estimateTime.addEventListener('blur', function () {
             todo.estimate = estimateTime.value;
-            _saveToDoList(todos);
+            _syncMeetingTime(todo, parseInt(estimateTime.value))
+            refresh();
         });
 
         decreaseButton.addEventListener('click', () => {
@@ -218,12 +233,12 @@ function drawTask(todo, today) {
         li.appendChild(completeBtn);
         li.appendChild(deleteButton);
 
-        title.addEventListener('input', function () {
+        title.addEventListener('blur', function () {
             todo.text = title.value;
             _saveToDoList(todos);
         });
 
-        estimateTime.addEventListener('input', function () {
+        estimateTime.addEventListener('blur', function () {
             todo.estimate = estimateTime.value;
             _saveToDoList(todos);
         });
