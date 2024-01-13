@@ -34,12 +34,8 @@ function _modifyTimestamp(timestamp, offset) {
 }
 
 function _adjustEndTime(startTime, minutes) {
-    console.log(startTime);
     const date = new Date(startTime);
-    console.log(date);
     date.setMinutes(date.getMinutes() - date.getTimezoneOffset() + minutes);
-    console.log(date);
-    console.log(date.toISOString().slice(0, 19).replace("T", " "));
     return date.toISOString().slice(0, 19).replace("T", " ");
 }
 
@@ -75,7 +71,7 @@ function _getElapsedTime(todo) {
     return parseInt(elapsedTime / 60 + 0.5);
 }
 
-function _getUlWithText(ul, text) {
+function _getUlWithText(ul, text, today) {
     let day;
     if (document.querySelector(`li[date='${text}']`) ? true : false) {
         day = ul.querySelector(`li[date='${text}']`);
@@ -83,6 +79,9 @@ function _getUlWithText(ul, text) {
         day = document.createElement('li');
         day.textContent = text;
         day.setAttribute("date", text);
+        if (text === today) {
+            day.id = "today";
+        }
     }
     ul.appendChild(day);
     const taskList = document.createElement('ul');
@@ -107,7 +106,27 @@ function _refreshAllTodos(todos) {
     }
     for (let todo of todos.sort(order)) {
         const li = drawTask(todo, today);
-        _getUlWithText(todoList, todo.tags.Date).appendChild(li);
+        _getUlWithText(todoList, todo.tags.Date, today).appendChild(li);
+    }
+    let sumTimeRequired = 0;
+    for (let todo of todos.sort(order)) {
+        if (todo.tags.Date != today) {
+            continue;
+        }
+        if (todo.done) {
+            sumTimeRequired += _getElapsedTime(todo);
+        } else if (_getElapsedTime(todo) <= todo.estimate) {
+            sumTimeRequired += parseInt(todo.estimate) - _getElapsedTime(todo);
+        } else {
+            sumTimeRequired += _getElapsedTime(todo);
+        }
+    }
+    const finishTime = document.createElement("label");
+    finishTime.textContent = _adjustEndTime(_timestamp(Date.now()), sumTimeRequired);
+    finishTime.style.background = "yellow";
+    const todayHeader = document.getElementById('today');
+    if (todayHeader) {
+        todayHeader.appendChild(finishTime);
     }
 }
 
@@ -140,14 +159,18 @@ function drawTask(todo, today) {
         const title = document.createElement('input');
         title.id = "title";
         title.value = todo.text;
-        title.style.background = "pink";
+        if (todo.done) {
+            title.style.background = "hotpink";
+        } else {
+            title.style.background = "pink";
+        }
         const estimateTime = document.createElement('input');
         estimateTime.id = "estimate-time";
         estimateTime.value = todo.estimate;
         const decreaseButton = document.createElement('button');
         decreaseButton.textContent = "<-";
         const timeDisplay = document.createElement('input');
-        timeDisplay.disabled = true;
+        timeDisplay.readOnly = true;
         timeDisplay.id = "time-display";
         timeDisplay.value = _getElapsedTime(todo);
         const increaseButton = document.createElement('button');
@@ -176,11 +199,18 @@ function drawTask(todo, today) {
 
         decreaseButton.addEventListener('click', () => {
             todo.times[todo.times.length - 1].end = _modifyTimestamp(todo.times[todo.times.length - 1].end, -5);
+            todo.done = true;
+            refresh();
+        });
+
+        timeDisplay.addEventListener('click', () => {
+            todo.done = !todo.done;
             refresh();
         });
 
         increaseButton.addEventListener('click', () => {
             todo.times[todo.times.length - 1].end = _modifyTimestamp(todo.times[todo.times.length - 1].end, 5);
+            todo.done = true;
             refresh();
         });
 
@@ -213,7 +243,7 @@ function drawTask(todo, today) {
             measureButton.disabled = true;
         }
         const timeDisplay = document.createElement('input');
-        timeDisplay.disabled = true;
+        timeDisplay.readOnly = true;
         timeDisplay.id = "time-display";
         timeDisplay.value = _getElapsedTime(todo);
         const completeBtn = document.createElement('button');
