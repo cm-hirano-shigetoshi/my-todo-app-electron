@@ -34,7 +34,7 @@ function _modifyTimestamp(timestamp, offset) {
 }
 
 function _adjustEndTime(startTime, minutes) {
-    const date = new Date(startTime);
+    const date = new Date(_timestamp(startTime));
     date.setMinutes(date.getMinutes() - date.getTimezoneOffset() + minutes);
     return date.toISOString().slice(0, 19).replace("T", " ");
 }
@@ -115,10 +115,10 @@ function _refreshAllTodos(todos) {
         }
         if (todo.done) {
             sumTimeRequired += _getElapsedTime(todo);
-        } else if (_getElapsedTime(todo) <= todo.estimate) {
-            sumTimeRequired += parseInt(todo.estimate) - _getElapsedTime(todo);
-        } else {
+        } else if (_getElapsedTime(todo) > todo.estimate) {
             sumTimeRequired += _getElapsedTime(todo);
+        } else if (parseInt(todo.estimate) ? true : false) {
+            sumTimeRequired += parseInt(todo.estimate) - _getElapsedTime(todo);
         }
     }
     const finishTime = document.createElement("label");
@@ -270,7 +270,7 @@ function drawTask(todo, today) {
 
         estimateTime.addEventListener('blur', function () {
             todo.estimate = estimateTime.value;
-            _saveToDoList(todos);
+            refresh();
         });
 
         measureButton.addEventListener('click', () => {
@@ -366,5 +366,5 @@ document.addEventListener('DOMContentLoaded', () => {
     loadToDoList();
     document.getElementById('reload').addEventListener('click', () => loadToDoList());
     document.getElementById('start-today').addEventListener('click', () => startToday(targetToday.value));
-    document.getElementById('add-task-btn').addEventListener('click', () => addTask(todoInput.value));
+    document.getElementById('add-task-btn').addEventListener('click', () => addTask(todoInput));
 });
