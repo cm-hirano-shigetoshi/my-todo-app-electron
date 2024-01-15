@@ -172,17 +172,17 @@ function drawTask(todo, today) {
         estimateTime.id = "estimate-time";
         estimateTime.value = todo.estimate;
         const decreaseButton = document.createElement('button');
-        decreaseButton.textContent = "<-";
+        decreaseButton.textContent = "⏪";
         const timeDisplay = document.createElement('input');
         timeDisplay.disabled = true;
         timeDisplay.id = "time-display";
         timeDisplay.value = _getElapsedTime(todo);
         const increaseButton = document.createElement('button');
-        increaseButton.textContent = "->";
+        increaseButton.textContent = "⏩";
         const completeBtn = document.createElement('button');
-        completeBtn.textContent = "完了";
+        completeBtn.textContent = "✅";
         const deleteButton = document.createElement('button');
-        deleteButton.textContent = "削除";
+        deleteButton.textContent = "🗑️";
 
         // リストアイテムへのボタンの追加
         li.appendChild(title);
@@ -242,9 +242,9 @@ function drawTask(todo, today) {
         estimateTime.value = todo.estimate;
         const measureButton = document.createElement('button');
         if (_isRunning(todo)) {
-            measureButton.textContent = '中断';
+            measureButton.textContent = '⏸️';
         } else {
-            measureButton.textContent = '開始';
+            measureButton.textContent = '⏱️';
         }
         if (todo.done) {
             measureButton.disabled = true;
@@ -255,14 +255,14 @@ function drawTask(todo, today) {
         timeDisplay.value = _getElapsedTime(todo);
         const completeBtn = document.createElement('button');
         if (todo.done) {
-            completeBtn.textContent = '取消';
+            completeBtn.textContent = '🔲';
         } else {
-            completeBtn.textContent = '完了';
+            completeBtn.textContent = '✅';
         }
         const tomorrowButton = document.createElement('button');
-        tomorrowButton.textContent = "翌日";
+        tomorrowButton.textContent = "⇪";
         const deleteButton = document.createElement('button');
-        deleteButton.textContent = "削除";
+        deleteButton.textContent = "🗑️";
 
         // リストアイテムへのボタンの追加
         li.appendChild(title);
