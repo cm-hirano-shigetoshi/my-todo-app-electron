@@ -119,6 +119,8 @@ function _refreshAllTodos(todos) {
         }
         if (todo.done) {
             sumTimeRequired += 0;
+        } else if (!Number.isInteger(parseInt(todo.estimate)) ? true : false) {
+            sumTimeRequired += 120;
         } else if (_getElapsedTime(todo) <= todo.estimate) {
             sumTimeRequired += parseInt(todo.estimate) - _getElapsedTime(todo);
         } else {
