@@ -174,11 +174,13 @@ function drawTask(todo, today) {
         const decreaseButton = document.createElement('button');
         decreaseButton.textContent = "<-";
         const timeDisplay = document.createElement('input');
-        timeDisplay.readOnly = true;
+        timeDisplay.disabled = true;
         timeDisplay.id = "time-display";
         timeDisplay.value = _getElapsedTime(todo);
         const increaseButton = document.createElement('button');
         increaseButton.textContent = "->";
+        const completeBtn = document.createElement('button');
+        completeBtn.textContent = "完了";
         const deleteButton = document.createElement('button');
         deleteButton.textContent = "削除";
 
@@ -188,6 +190,7 @@ function drawTask(todo, today) {
         li.appendChild(decreaseButton);
         li.appendChild(timeDisplay);
         li.appendChild(increaseButton);
+        li.appendChild(completeBtn);
         li.appendChild(deleteButton);
 
         title.addEventListener('blur', function () {
@@ -207,14 +210,14 @@ function drawTask(todo, today) {
             refresh();
         });
 
-        timeDisplay.addEventListener('click', () => {
-            todo.done = !todo.done;
-            refresh();
-        });
-
         increaseButton.addEventListener('click', () => {
             todo.times[todo.times.length - 1].end = _modifyTimestamp(todo.times[todo.times.length - 1].end, 5);
             todo.done = true;
+            refresh();
+        });
+
+        completeBtn.addEventListener('click', () => {
+            todo.done = !todo.done;
             refresh();
         });
 
@@ -247,7 +250,7 @@ function drawTask(todo, today) {
             measureButton.disabled = true;
         }
         const timeDisplay = document.createElement('input');
-        timeDisplay.readOnly = true;
+        timeDisplay.disabled = true;
         timeDisplay.id = "time-display";
         timeDisplay.value = _getElapsedTime(todo);
         const completeBtn = document.createElement('button');
@@ -266,8 +269,8 @@ function drawTask(todo, today) {
         li.appendChild(estimateTime);
         li.appendChild(measureButton);
         li.appendChild(timeDisplay);
-        li.appendChild(completeBtn);
         li.appendChild(tomorrowButton);
+        li.appendChild(completeBtn);
         li.appendChild(deleteButton);
 
         title.addEventListener('blur', function () {
