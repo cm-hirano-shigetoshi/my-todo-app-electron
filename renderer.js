@@ -43,6 +43,10 @@ function _syncMeetingTime(todo, minutes) {
     todo.times[0].end = _adjustEndTime(todo.times[0].start, minutes);
 }
 
+function _moveToNextDay(todo) {
+    todo.tags.Date = _modifyTimestamp(todo.tags.Date, 60 * 24).slice(0, 10);
+}
+
 function _saveToDoList(todos) {
     ipcRenderer.invoke('save-todos', todos);
 }
@@ -114,11 +118,11 @@ function _refreshAllTodos(todos) {
             continue;
         }
         if (todo.done) {
-            sumTimeRequired += _getElapsedTime(todo);
-        } else if (_getElapsedTime(todo) > todo.estimate) {
-            sumTimeRequired += _getElapsedTime(todo);
-        } else if (parseInt(todo.estimate) ? true : false) {
+            sumTimeRequired += 0;
+        } else if (_getElapsedTime(todo) <= todo.estimate) {
             sumTimeRequired += parseInt(todo.estimate) - _getElapsedTime(todo);
+        } else {
+            sumTimeRequired += 120;
         }
     }
     const finishTime = document.createElement("label");
@@ -252,6 +256,8 @@ function drawTask(todo, today) {
         } else {
             completeBtn.textContent = '完了';
         }
+        const tomorrowButton = document.createElement('button');
+        tomorrowButton.textContent = "翌日";
         const deleteButton = document.createElement('button');
         deleteButton.textContent = "削除";
 
@@ -261,6 +267,7 @@ function drawTask(todo, today) {
         li.appendChild(measureButton);
         li.appendChild(timeDisplay);
         li.appendChild(completeBtn);
+        li.appendChild(tomorrowButton);
         li.appendChild(deleteButton);
 
         title.addEventListener('blur', function () {
@@ -291,6 +298,11 @@ function drawTask(todo, today) {
                     todo.times[todo.times.length - 1].end = _timestamp(Date.now());
                 }
             }
+            refresh();
+        });
+
+        tomorrowButton.addEventListener('click', () => {
+            _moveToNextDay(todo);
             refresh();
         });
 
