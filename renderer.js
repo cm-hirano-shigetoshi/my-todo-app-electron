@@ -43,6 +43,12 @@ function _syncMeetingTime(todo, minutes) {
     todo.times[0].end = _adjustEndTime(todo.times[0].start, minutes);
 }
 
+function _toHourMinute(minutes) {
+    const hour = parseInt(minutes / 60);
+    const minute = parseInt(minutes % 60);
+    return hour + ":" + minute;
+}
+
 function _moveToNextDay(todo) {
     todo.tags.Date = _modifyTimestamp(todo.tags.Date, 60 * 24).slice(0, 10);
 }
@@ -57,6 +63,10 @@ function _isRunning(todo) {
         return true;
     }
     return false;
+}
+
+function _isMeeting(todo) {
+    return todo.id.startsWith("#MTG_");
 }
 
 function _calcElapsedTime(start, end) {
@@ -119,16 +129,23 @@ function _refreshAllTodos(todos) {
         }
         if (todo.done) {
             sumTimeRequired += 0;
-        } else if (!Number.isInteger(parseInt(todo.estimate)) ? true : false) {
-            sumTimeRequired += 120;
-        } else if (_getElapsedTime(todo) <= todo.estimate) {
-            sumTimeRequired += parseInt(todo.estimate) - _getElapsedTime(todo);
         } else {
-            sumTimeRequired += 120;
+            if (_isMeeting(todo)) {
+                sumTimeRequired += parseInt(todo.estimate);
+            } else {
+                if (!Number.isInteger(parseInt(todo.estimate)) ? true : false) {
+                    sumTimeRequired += 120;
+                } else if (_getElapsedTime(todo) <= todo.estimate) {
+                    sumTimeRequired += parseInt(todo.estimate) - _getElapsedTime(todo);
+                } else {
+                    sumTimeRequired += 120;
+                }
+            }
         }
     }
     const finishTime = document.createElement("label");
-    finishTime.textContent = _adjustEndTime(_timestamp(Date.now()), sumTimeRequired);
+    finishTime.textContent = "+" + _toHourMinute(sumTimeRequired) + " ";
+    finishTime.textContent += _adjustEndTime(_timestamp(Date.now()), sumTimeRequired);
     finishTime.style.background = "yellow";
     const todayHeader = document.getElementById('today');
     if (todayHeader) {
@@ -161,7 +178,7 @@ function loadToDoList() {
 function drawTask(todo, today) {
     // ToDoのリストアイテムを作成
     const li = document.createElement('li');
-    if (todo.id.startsWith("#MTG_")) {
+    if (_isMeeting(todo)) {
         const title = document.createElement('input');
         title.id = "title";
         title.value = todo.text;
