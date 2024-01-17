@@ -199,7 +199,11 @@ function drawTask(todo, today) {
         const increaseButton = document.createElement('button');
         increaseButton.textContent = "⏩";
         const completeBtn = document.createElement('button');
-        completeBtn.textContent = "✅";
+        if (todo.done) {
+            completeBtn.textContent = '🔲';
+        } else {
+            completeBtn.textContent = '✅';
+        }
         const comment = document.createElement('input');
         comment.id = "comment"
         comment.value = todo.comment;
