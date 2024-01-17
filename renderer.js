@@ -200,6 +200,9 @@ function drawTask(todo, today) {
         increaseButton.textContent = "⏩";
         const completeBtn = document.createElement('button');
         completeBtn.textContent = "✅";
+        const comment = document.createElement('input');
+        comment.id = "comment"
+        comment.value = todo.comment;
         const deleteButton = document.createElement('button');
         deleteButton.textContent = "🗑️";
 
@@ -210,6 +213,7 @@ function drawTask(todo, today) {
         li.appendChild(timeDisplay);
         li.appendChild(increaseButton);
         li.appendChild(completeBtn);
+        li.appendChild(comment);
         li.appendChild(deleteButton);
 
         title.addEventListener('blur', function () {
@@ -238,6 +242,11 @@ function drawTask(todo, today) {
         completeBtn.addEventListener('click', () => {
             todo.done = !todo.done;
             refresh();
+        });
+
+        comment.addEventListener('blur', function () {
+            todo.comment = comment.value;
+            _saveToDoList(todos);
         });
 
         deleteButton.addEventListener('click', () => {
@@ -280,6 +289,9 @@ function drawTask(todo, today) {
         }
         const tomorrowButton = document.createElement('button');
         tomorrowButton.textContent = "⇪";
+        const comment = document.createElement('input');
+        comment.id = "comment"
+        comment.value = todo.comment;
         const deleteButton = document.createElement('button');
         deleteButton.textContent = "🗑️";
 
@@ -290,6 +302,7 @@ function drawTask(todo, today) {
         li.appendChild(timeDisplay);
         li.appendChild(tomorrowButton);
         li.appendChild(completeBtn);
+        li.appendChild(comment);
         li.appendChild(deleteButton);
 
         title.addEventListener('blur', function () {
@@ -326,6 +339,11 @@ function drawTask(todo, today) {
         tomorrowButton.addEventListener('click', () => {
             _moveToNextDay(todo);
             refresh();
+        });
+
+        comment.addEventListener('blur', function () {
+            todo.comment = comment.value;
+            _saveToDoList(todos);
         });
 
         deleteButton.addEventListener('click', () => {
@@ -383,6 +401,7 @@ function _addTask(todos, text, date = null, estimate = "") {
         estimate: estimate,
         times: [],
         done: false,
+        comment: "",
         tags: {"Date": date},
     };
     todos.push(newTodo);
