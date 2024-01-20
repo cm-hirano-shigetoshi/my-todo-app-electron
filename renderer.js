@@ -447,7 +447,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 ipcRenderer.on('add-task', (event, task) => {
-    _addTask(todos, task.task);
+    if (task.hasOwnProperty("date")) {
+        _addTask(todos, task.task, task.date);
+    } else {
+        _addTask(todos, task.task);
+    }
 });
 
 ipcRenderer.on('dakoku', (event, task) => {
