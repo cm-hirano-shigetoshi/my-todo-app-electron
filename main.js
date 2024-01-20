@@ -1,10 +1,17 @@
 const {app, BrowserWindow, ipcMain} = require('electron');
 const fs = require('fs');
 const path = require('path');
+const express = require('express');
+const bodyParser = require('body-parser');
+
+const expressApp = express();
+expressApp.use(bodyParser.json());
+
+let win;
 
 function createWindow() {
     // 新しいウィンドウを作成
-    let win = new BrowserWindow({
+    win = new BrowserWindow({
         width: 1000,
         height: 600,
         webPreferences: {
@@ -40,7 +47,7 @@ ipcMain.on('save-todos', (event, todos) => {
 });
 
 // ToDoリストの非同期保存処理
-ipcMain.handle('save-todos', async(event, todos) => {
+ipcMain.handle('save-todos', async (event, todos) => {
     fs.writeFileSync(DATA_PATH, JSON.stringify(todos, null, 2), 'utf-8');
 });
 
@@ -52,4 +59,16 @@ ipcMain.on('load-todos', (event) => {
     }
     const data = fs.readFileSync(DATA_PATH, 'utf-8');
     event.returnValue = data;
+});
+
+expressApp.post('/add-task', (req, res) => {
+    const task = req.body;
+    console.log(task);
+    win.webContents.send('add-task', task);
+    res.status(200).send('Task added successfully');
+});
+
+// 3000番ポートでサーバーを起動
+expressApp.listen(3000, () => {
+    console.log('Express server listening on port 3000');
 });

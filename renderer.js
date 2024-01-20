@@ -425,3 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('start-today').addEventListener('click', () => startToday(targetToday.value));
     document.getElementById('add-task-btn').addEventListener('click', () => addTask(todoInput));
 });
+
+ipcRenderer.on('add-task', (event, task) => {
+    console.log('Task Received: ', task);
+});
