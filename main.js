@@ -63,9 +63,13 @@ ipcMain.on('load-todos', (event) => {
 
 expressApp.post('/add-task', (req, res) => {
     const task = req.body;
-    console.log(task);
     win.webContents.send('add-task', task);
     res.status(200).send('Task added successfully');
+});
+
+expressApp.post('/dakoku', (req, res) => {
+    win.webContents.send('dakoku', null);
+    res.status(200).send('Dakoku successfully');
 });
 
 // 3000番ポートでサーバーを起動

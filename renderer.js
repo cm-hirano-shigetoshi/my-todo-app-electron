@@ -57,6 +57,14 @@ function _saveToDoList(todos) {
     ipcRenderer.invoke('save-todos', todos);
 }
 
+function _stopRunning(todos) {
+    for (let todo of todos) {
+        if (_isRunning(todo)) {
+            todo.times[todo.times.length - 1].end = _timestamp(Date.now());
+        }
+    }
+}
+
 function _isRunning(todo) {
     if (todo.times.length === 0) return false;
     if (todo.times[todo.times.length - 1].start && !todo.times[todo.times.length - 1].end) {
@@ -410,11 +418,23 @@ function _addTask(todos, text, date = null, estimate = "") {
     };
     todos.push(newTodo);
     refresh();
+    return newTodo;
 }
 
 function addTask(todoInput) {
     _addTask(todos, todoInput.value);
     todoInput.value = '';
+}
+
+function startAnonymouseTask() {
+    const todo = _addTask(todos, _timestamp(Date.now()));
+    todo.times.push({start: _timestamp(Date.now()), end: null});
+}
+
+function dakoku() {
+    _stopRunning(todos);
+    startAnonymouseTask();
+    refresh();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -427,5 +447,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 ipcRenderer.on('add-task', (event, task) => {
-    console.log('Task Received: ', task);
+    _addTask(todos, task.task);
+});
+
+ipcRenderer.on('dakoku', (event, task) => {
+    dakoku();
 });
