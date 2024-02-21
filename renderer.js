@@ -1,6 +1,7 @@
 const {ipcRenderer} = require('electron');
 
 const taskManage = "タスク確認";
+const taskManageTaskcode = "2";
 const taskManageEstimate = 30;
 
 let todos = [];
@@ -416,11 +417,11 @@ function startToday(today = "") {
         today = _getToday();
     }
     _closeTaskManage(todos, today);
-    _addTask(todos, taskManage, today, taskManageEstimate)
+    _addTask(todos, taskManage, taskManageTaskcode, today, taskManageEstimate)
     _copyUncompletedTasks(todos, today);
 }
 
-function _addTask(todos, text, date = null, estimate = "") {
+function _addTask(todos, text, taskcode = "", date = null, estimate = "") {
     const now = Date.now();
     if (date === null) {
         date = _getToday(now);
@@ -428,7 +429,7 @@ function _addTask(todos, text, date = null, estimate = "") {
     const newTodo = {
         id: now.toString(),
         text: text,
-        taskcode: "",
+        taskcode: taskcode,
         estimate: estimate,
         times: [],
         done: false,
@@ -467,7 +468,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 ipcRenderer.on('add-task', (event, task) => {
     if (task.hasOwnProperty("date")) {
-        _addTask(todos, task.task, task.date);
+        _addTask(todos, task.task, task.taskcode, task.date);
+    } else if (task.hasOwnProperty("taskcode")) {
+        _addTask(todos, task.task, task.taskcode);
     } else {
         _addTask(todos, task.task);
     }
