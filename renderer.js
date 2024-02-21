@@ -1,7 +1,7 @@
 const {ipcRenderer} = require('electron');
 
 const taskManage = "タスク確認";
-const taskManageTaskcode = "2";
+const taskManageTaskcode = "c2";
 const taskManageEstimate = 30;
 
 let todos = [];
