@@ -195,6 +195,9 @@ function drawTask(todo, today) {
         } else {
             title.style.background = "pink";
         }
+        const taskcode = document.createElement('input');
+        taskcode.id = "taskcode";
+        taskcode.value = todo.taskcode;
         const estimateTime = document.createElement('input');
         estimateTime.id = "estimate-time";
         estimateTime.value = todo.estimate;
@@ -220,6 +223,7 @@ function drawTask(todo, today) {
 
         // リストアイテムへのボタンの追加
         li.appendChild(title);
+        li.appendChild(taskcode);
         li.appendChild(estimateTime);
         li.appendChild(decreaseButton);
         li.appendChild(timeDisplay);
@@ -230,6 +234,11 @@ function drawTask(todo, today) {
 
         title.addEventListener('blur', function () {
             todo.text = title.value;
+            _saveToDoList(todos);
+        });
+
+        taskcode.addEventListener('blur', function () {
+            todo.taskcode = taskcode.value;
             _saveToDoList(todos);
         });
 
@@ -269,6 +278,9 @@ function drawTask(todo, today) {
         const title = document.createElement('input');
         title.id = "title";
         title.value = todo.text;
+        const taskcode = document.createElement('input');
+        taskcode.id = "taskcode"
+        taskcode.value = todo.taskcode;
         if (todo.done) {
             title.style.background = "lightgreen";
         } else if (todo.tags.Date < today) {
@@ -309,6 +321,7 @@ function drawTask(todo, today) {
 
         // リストアイテムへのボタンの追加
         li.appendChild(title);
+        li.appendChild(taskcode);
         li.appendChild(estimateTime);
         li.appendChild(measureButton);
         li.appendChild(timeDisplay);
@@ -319,6 +332,11 @@ function drawTask(todo, today) {
 
         title.addEventListener('blur', function () {
             todo.text = title.value;
+            _saveToDoList(todos);
+        });
+
+        taskcode.addEventListener('blur', function () {
+            todo.taskcode = taskcode.value;
             _saveToDoList(todos);
         });
 
@@ -410,6 +428,7 @@ function _addTask(todos, text, date = null, estimate = "") {
     const newTodo = {
         id: now.toString(),
         text: text,
+        taskcode: "",
         estimate: estimate,
         times: [],
         done: false,
