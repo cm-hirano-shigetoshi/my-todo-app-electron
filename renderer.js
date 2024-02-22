@@ -30,14 +30,12 @@ function _epochtime(timestamp, timezoneOffset = 9) {
 
 function _modifyTimestamp(timestamp, offset) {
     const date = new Date(timestamp);
-    date.setMinutes(date.getMinutes() + offset);
-    return date.toISOString();
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset() + offset);
+    return date.toISOString().slice(0, 19).replace("T", " ");
 }
 
 function _adjustEndTime(startTime, minutes) {
-    const date = new Date(_timestamp(startTime));
-    date.setMinutes(date.getMinutes() - date.getTimezoneOffset() + minutes);
-    return date.toISOString().slice(0, 19).replace("T", " ");
+    return _modifyTimestamp(_timestamp(startTime), minutes)
 }
 
 function _syncMeetingTime(todo, minutes) {
