@@ -419,7 +419,7 @@ function startToday(today = "") {
     _copyUncompletedTasks(todos, today);
 }
 
-function _addTask(todos, text, taskcode = "", date = null, estimate = "") {
+function _addTask(todos, text, taskcode = "", date = null, estimate = "", comment) {
     const now = Date.now();
     if (date === null) {
         date = _getToday(now);
@@ -431,7 +431,7 @@ function _addTask(todos, text, taskcode = "", date = null, estimate = "") {
         estimate: estimate,
         times: [],
         done: false,
-        comment: "",
+        comment: comment,
         tags: {"Date": date},
     };
     todos.push(newTodo);
@@ -465,13 +465,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 ipcRenderer.on('add-task', (event, task) => {
-    if (task.hasOwnProperty("date")) {
-        _addTask(todos, task.task, task.taskcode, task.date);
-    } else if (task.hasOwnProperty("taskcode")) {
-        _addTask(todos, task.task, task.taskcode);
-    } else {
-        _addTask(todos, task.task);
-    }
+    let taskcode = ("taskcode" in task) ? task["taskcode"] : "";
+    let date = ("date" in task) ? task["date"] : null;
+    let comment = ("comment" in task) ? task["comment"] : "";
+    let estimation = ("estimation" in task) ? task["estimation"] : "";
+    _addTask(todos, task.task, taskcode, date, estimation, comment);
 });
 
 ipcRenderer.on('dakoku', (event, task) => {
