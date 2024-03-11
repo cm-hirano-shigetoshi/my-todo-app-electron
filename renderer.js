@@ -110,6 +110,16 @@ function _getUlWithText(ul, text, today) {
     return taskList;
 }
 
+function _strToIntOrNull(str) {
+    let num = parseInt(str);
+    if (isNaN(num)) {
+        return null;
+    } else {
+        return num;
+    }
+}
+
+
 function _refreshAllTodos(todos) {
     const today = _getToday();
     const todoList = document.getElementById('todo-list');
@@ -123,7 +133,21 @@ function _refreshAllTodos(todos) {
         if (a.tags.Date > b.tags.Date) {
             return -1;
         }
-        return a.id > b.id ? -1 : 1;
+        if (a.tags.Order === "MTG") {
+            return 1;
+        }
+        if (b.tags.Order === "MTG") {
+            return -1;
+        }
+        const aa = _strToIntOrNull(a.tags.Order);
+        const bb = _strToIntOrNull(b.tags.Order);
+        if (aa === null) {
+            return 1;
+        }
+        if (bb === null) {
+            return -1;
+        }
+        return aa < bb ? -1 : 1;
     }
     for (let todo of todos.sort(order)) {
         const li = drawTask(todo, today);
@@ -186,6 +210,9 @@ function drawTask(todo, today) {
     // ToDoのリストアイテムを作成
     const li = document.createElement('li');
     if (_isMeeting(todo)) {
+        const order = document.createElement('input');
+        order.id = "order";
+        order.value = todo.tags.Order;
         const title = document.createElement('input');
         title.id = "title";
         title.value = todo.text;
@@ -221,6 +248,7 @@ function drawTask(todo, today) {
         deleteButton.textContent = "🗑️";
 
         // リストアイテムへのボタンの追加
+        li.appendChild(order);
         li.appendChild(title);
         li.appendChild(taskcode);
         li.appendChild(estimateTime);
@@ -230,6 +258,12 @@ function drawTask(todo, today) {
         li.appendChild(completeBtn);
         li.appendChild(comment);
         li.appendChild(deleteButton);
+
+        order.addEventListener('blur', function () {
+            todo.tags.Order = order.value;
+            _syncMeetingTime(todo, parseInt(order.value))
+            refresh();
+        });
 
         title.addEventListener('blur', function () {
             todo.text = title.value;
@@ -274,6 +308,9 @@ function drawTask(todo, today) {
             refresh();
         });
     } else {
+        const order = document.createElement('input');
+        order.id = "order";
+        order.value = todo.tags.Order;
         const title = document.createElement('input');
         title.id = "title";
         title.value = todo.text;
@@ -319,6 +356,7 @@ function drawTask(todo, today) {
         deleteButton.textContent = "🗑️";
 
         // リストアイテムへのボタンの追加
+        li.appendChild(order);
         li.appendChild(title);
         li.appendChild(taskcode);
         li.appendChild(estimateTime);
@@ -328,6 +366,12 @@ function drawTask(todo, today) {
         li.appendChild(completeBtn);
         li.appendChild(comment);
         li.appendChild(deleteButton);
+
+        order.addEventListener('blur', function () {
+            todo.tags.Order = order.value;
+            _syncMeetingTime(todo, parseInt(order.value))
+            refresh();
+        });
 
         title.addEventListener('blur', function () {
             todo.text = title.value;
@@ -432,7 +476,7 @@ function _addTask(todos, text, taskcode = "", date = null, estimate = "", commen
         times: [],
         done: false,
         comment: comment,
-        tags: {"Date": date},
+        tags: {"Date": date, "Order": null},
     };
     todos.push(newTodo);
     refresh();
