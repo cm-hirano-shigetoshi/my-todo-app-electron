@@ -400,7 +400,7 @@ function _copyUncompletedTasks(todos, today) {
         if (todo.tags.Date >= today) {
             continue;
         }
-        if (!todo.done && !todo.id.endsWith("_expired")) {
+        if (!_isMeeting(todo) && !todo.done && !todo.id.endsWith("_expired")) {
             let newTodo = JSON.parse(JSON.stringify(todo));;
             todo.id += "_expired";
             newTodo.tags.Date = today;
