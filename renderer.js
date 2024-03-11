@@ -419,7 +419,7 @@ function startToday(today = "") {
     _copyUncompletedTasks(todos, today);
 }
 
-function _addTask(todos, text, taskcode = "", date = null, estimate = "", comment) {
+function _addTask(todos, text, taskcode = "", date = null, estimate = "", comment = "") {
     const now = Date.now();
     if (date === null) {
         date = _getToday(now);
