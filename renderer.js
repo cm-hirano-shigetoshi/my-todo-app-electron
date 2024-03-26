@@ -390,7 +390,13 @@ function drawTask(todo, today) {
 
         measureButton.addEventListener('click', () => {
             if (_isRunning(todo)) {
-                todo.times[todo.times.length - 1].end = _timestamp(Date.now());
+                const times = todo.times[todo.times.length - 1];
+                times.end = _timestamp(Date.now());
+                console.log(times);
+                console.log(_calcElapsedTime(times.start, times.end));
+                if (_calcElapsedTime(times.start, times.end) < 60) {
+                    todo.times.splice(todo.times.length - 1, 1);
+                }
                 refresh();
             } else {
                 todo.times.push({start: _timestamp(Date.now()), end: null});
