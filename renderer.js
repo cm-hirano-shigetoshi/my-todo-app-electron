@@ -445,10 +445,14 @@ function _copyUncompletedTasks(todos, today) {
             continue;
         }
         if (!_isMeeting(todo) && !todo.done && !todo.id.endsWith("_expired")) {
-            let newTodo = JSON.parse(JSON.stringify(todo));;
-            todo.id += "_expired";
-            newTodo.tags.Date = today;
-            todos.push(newTodo)
+            if (todo.times.length === 0) {
+                todo.tags.Date = today;
+            } else {
+                let newTodo = JSON.parse(JSON.stringify(todo));;
+                todo.id += "_expired";
+                newTodo.tags.Date = today;
+                todos.push(newTodo)
+            }
         }
     }
     refresh();
