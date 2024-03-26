@@ -406,7 +406,7 @@ function drawTask(todo, today) {
 
         completeBtn.addEventListener('click', () => {
             todo.done = !todo.done;
-            if (todo.done) {
+            if (todo.times.length > 0 && todo.done) {
                 if (!todo.times[todo.times.length - 1].end) {
                     // endがすでにある場合は単純に再度完了に戻すだけ
                     todo.times[todo.times.length - 1].end = _timestamp(Date.now());
