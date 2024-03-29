@@ -486,7 +486,7 @@ function _addTask(todos, text, taskcode = "", date = null, estimate = "", commen
         times: [],
         done: false,
         comment: comment,
-        tags: {"Date": date, "Order": null},
+        tags: {"Date": date, "Order": "1"},
     };
     todos.push(newTodo);
     refresh();
