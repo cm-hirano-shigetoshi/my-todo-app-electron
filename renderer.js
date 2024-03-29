@@ -179,17 +179,18 @@ function _refreshTodos(todos) {
         if (todo.tags.Date != today) {
             continue;
         }
-        if (todo.done) {
-            sumTimeRequired += 0;
-        } else {
+        if (!todo.done) {
             if (_isMeeting(todo)) {
                 sumTimeRequired += parseInt(todo.estimate);
-            } else {
+            } else if (todo.tags?.Order?.length) {
                 if (!Number.isInteger(parseInt(todo.estimate)) ? true : false) {
+                    console.log(todo.text, "120");
                     sumTimeRequired += 120;
                 } else if (_getElapsedTime(todo) <= todo.estimate) {
+                    console.log(todo.text, parseInt(todo.estimate) - _getElapsedTime(todo));
                     sumTimeRequired += parseInt(todo.estimate) - _getElapsedTime(todo);
                 } else {
+                    console.log(todo.text, "120");
                     sumTimeRequired += 120;
                 }
             }
