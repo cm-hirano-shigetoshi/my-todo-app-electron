@@ -4,6 +4,8 @@ const taskManage = "タスク確認";
 const taskManageTaskcode = "c2";
 const taskManageEstimate = 30;
 
+const daysToShow = 10;
+
 let todos = [];
 
 function _timestamp(epoch, timezoneOffset = 9) {
@@ -32,6 +34,10 @@ function _modifyTimestamp(timestamp, offset) {
     const date = new Date(timestamp);
     date.setMinutes(date.getMinutes() - date.getTimezoneOffset() + offset);
     return date.toISOString().slice(0, 19).replace("T", " ");
+}
+
+function _getNDaysAgo(date, days) {
+    return _modifyTimestamp(date, -60 * 24 * days).slice(0, 10);
 }
 
 function _adjustEndTime(startTime, minutes) {
@@ -119,8 +125,23 @@ function _strToIntOrNull(str) {
     }
 }
 
+function _betweenDate(d, start, end = null) {
+    if (end === null) {
+        return d.toString() >= start.toString();
+    } else {
+        return start.toString() <= d.toString() && d.toString() <= end.toString();
+    }
+}
 
-function _refreshAllTodos(todos) {
+function _filterTodos(todos) {
+    for (let i = 0; i < daysToShow; i++) {
+        return todos.filter(x => _betweenDate((x.tags?.Date), _getNDaysAgo(_getToday(), daysToShow)));
+    }
+    return todos;
+}
+
+function _refreshTodos(todos) {
+    const filteredTodos = _filterTodos(todos);
     const today = _getToday();
     const todoList = document.getElementById('todo-list');
     while (todoList.firstChild) {
@@ -149,12 +170,12 @@ function _refreshAllTodos(todos) {
         }
         return aa < bb ? -1 : 1;
     }
-    for (let todo of todos.sort(order)) {
+    for (let todo of filteredTodos.sort(order)) {
         const li = drawTask(todo, today);
         _getUlWithText(todoList, todo.tags.Date, today).appendChild(li);
     }
     let sumTimeRequired = 0;
-    for (let todo of todos.sort(order)) {
+    for (let todo of filteredTodos.sort(order)) {
         if (todo.tags.Date != today) {
             continue;
         }
@@ -197,12 +218,12 @@ function removeTodo(todo) {
 
 function refresh() {
     _saveToDoList(todos);
-    _refreshAllTodos(todos);
+    _refreshTodos(todos);
 }
 
 function loadToDoList() {
     todos = JSON.parse(ipcRenderer.sendSync('load-todos'));
-    _refreshAllTodos(todos);
+    _refreshTodos(todos);
 }
 
 
