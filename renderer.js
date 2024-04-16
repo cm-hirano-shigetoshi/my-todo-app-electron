@@ -4,7 +4,7 @@ const taskManage = "タスク確認";
 const taskManageTaskcode = "c2";
 const taskManageEstimate = 30;
 
-const daysToShow = 10;
+const daysToShow = 31;
 
 let todos = [];
 
