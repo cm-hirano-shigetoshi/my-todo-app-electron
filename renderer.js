@@ -391,8 +391,7 @@ function drawTask(todo, today) {
 
         order.addEventListener('blur', function () {
             todo.tags.Order = order.value;
-            _syncMeetingTime(todo, parseInt(order.value))
-            refresh();
+            _saveToDoList(todos);
         });
 
         title.addEventListener('blur', function () {
