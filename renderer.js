@@ -1,8 +1,12 @@
 const {ipcRenderer} = require('electron');
 
-const taskManage = "タスク確認";
-const taskManageTaskcode = "c2";
-const taskManageEstimate = 30;
+const routineTodos = [
+    {
+        name: "タスク確認",
+        taskcode: "c2",
+        default_estimate: 30
+    }
+]
 
 const daysToShow = 31;
 
@@ -454,12 +458,12 @@ function drawTask(todo, today) {
     return li
 }
 
-function _closeTaskManage(todos, today) {
+function _closeRoutineTodos(todos, today) {
     for (let todo of todos) {
         if (todo.tags.Date >= today) {
             continue;
         }
-        if (todo.text === taskManage && !todo.done) {
+        if (routineTodos.filter(x => x.name === todo.text).length && !todo.done) {
             todo.done = true;
         }
     }
@@ -489,8 +493,10 @@ function startToday(today = "") {
     if (today === "") {
         today = _getToday();
     }
-    _closeTaskManage(todos, today);
-    _addTask(todos, taskManage, taskManageTaskcode, today, taskManageEstimate)
+    _closeRoutineTodos(todos, today);
+    for (let todo of routineTodos) {
+        _addTask(todos, todo.name, todo.taskcode, today, todo.default_estimate)
+    }
     _copyUncompletedTasks(todos, today);
 }
 
@@ -540,6 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 ipcRenderer.on('add-task', (event, task) => {
+    console.log(task.task)
     let taskcode = ("taskcode" in task) ? task["taskcode"] : "";
     let date = ("date" in task) ? task["date"] : null;
     let comment = ("comment" in task) ? task["comment"] : "";
