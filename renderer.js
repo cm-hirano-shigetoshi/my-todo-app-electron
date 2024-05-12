@@ -1,8 +1,12 @@
 const {ipcRenderer} = require('electron');
 
-const taskManage = "タスク確認";
-const taskManageTaskcode = "c2";
-const taskManageEstimate = 30;
+const routineTodos = [
+    {
+        name: "タスク確認",
+        taskcode: "c2",
+        default_estimate: 30
+    }
+]
 
 const daysToShow = 31;
 
@@ -459,7 +463,7 @@ function _closeTaskManage(todos, today) {
         if (todo.tags.Date >= today) {
             continue;
         }
-        if (todo.text === taskManage && !todo.done) {
+        if (routineTodos.filter(x => x.name === todo.text).length && !todo.done) {
             todo.done = true;
         }
     }
@@ -490,7 +494,9 @@ function startToday(today = "") {
         today = _getToday();
     }
     _closeTaskManage(todos, today);
-    _addTask(todos, taskManage, taskManageTaskcode, today, taskManageEstimate)
+    for (let todo of routineTodos) {
+        _addTask(todos, todo.name, todo.taskcode, today, todo.default_estimate)
+    }
     _copyUncompletedTasks(todos, today);
 }
 
