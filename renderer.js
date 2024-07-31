@@ -3,7 +3,7 @@ const {ipcRenderer} = require('electron');
 const routineTodos = [
     {
         name: "タスク確認",
-        taskcode: "c2",
+        taskcode: "c130",
         default_estimate: 30
     }
 ]
